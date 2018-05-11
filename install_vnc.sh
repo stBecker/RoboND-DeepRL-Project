@@ -3,6 +3,12 @@
 sudo apt-get update
 sudo apt-get upgrade -y
 
+sudo apt-get --assume-yes upgrade
+sudo apt-get --assume-yes install build-essential
+
+sudo apt install htop iotop git python-dev python3-dev python-numpy python3-numpy build-essential python-pip python3-pip python-virtualenv swig python-wheel libcurl3-dev libfreetype6-dev libpng12-dev libjpeg8-dev libtiff5-dev libjasper-dev libpng12-dev qtbase5-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran libhdf5-serial-dev
+
+
 # Install Lubuntu
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get install -y lubuntu-desktop
@@ -48,6 +54,9 @@ sudo awk '/VendorName     \"NVIDIA Corporation\"/{print;print "    BusID        
 sudo mv tmp /etc/X11/xorg.conf
 sudo awk '/DefaultDepth    24/{print;print "    Option        \"UseDisplayDevice\" \"none\"";next}1' /etc/X11/xorg.conf > tmp && \
 sudo mv tmp /etc/X11/xorg.conf
+
+sudo apt-get install nvidia-384 nvidia-settings 
+
 
 echo ""
 echo "******************************************************************"
