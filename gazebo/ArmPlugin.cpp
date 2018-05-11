@@ -35,14 +35,14 @@
 /
 */
 
-#define INPUT_WIDTH   128
-#define INPUT_HEIGHT  128
-#define OPTIMIZER "RMSprop"
+#define INPUT_WIDTH   64
+#define INPUT_HEIGHT  64
+#define OPTIMIZER "Adam"
 #define LEARNING_RATE 0.1f
 #define REPLAY_MEMORY 10000
-#define BATCH_SIZE 8
+#define BATCH_SIZE 512
 #define USE_LSTM true
-#define LSTM_SIZE 32
+#define LSTM_SIZE 256
 
 /*
 / TODO - Define Reward Parameters
@@ -139,7 +139,7 @@ void ArmPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	/
 	*/
 	
-  cameraSub = cameraNode->Subscribe("/gazebo/" WORLD_NAME "/camera/link/camera/image", &ArmPlugin::onCameraMsg, this);
+	cameraSub = cameraNode->Subscribe("/gazebo/" WORLD_NAME "/camera/link/camera/image", &ArmPlugin::onCameraMsg, this);
 
 	// Create our node for collision detection
 	collisionNode->Init();
@@ -149,7 +149,7 @@ void ArmPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr /*_sdf*/)
 	/
 	*/
 	
-  collisionSub = collisionNode->Subscribe("/gazebo/" WORLD_NAME "/" PROP_NAME "/tube_link/my_contact", &ArmPlugin::onCollisionMsg, this);
+	collisionSub = collisionNode->Subscribe("/gazebo/" WORLD_NAME "/" PROP_NAME "/tube_link/my_contact", &ArmPlugin::onCollisionMsg, this);
 
 	// Listen to the update event. This event is broadcast every simulation iteration.
 	this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&ArmPlugin::OnUpdate, this, _1));
@@ -266,7 +266,7 @@ void ArmPlugin::onCollisionMsg(ConstContactsPtr &contacts)
 		/ TODO - Check if there is collision between the arm and object, then issue learning reward
 		/
 		*/
-    bool collisionCheck = (strcmp(contacts->contact(i).collision1().c_str(), COLLISION_ITEM) == 0);
+		bool collisionCheck = (strcmp(contacts->contact(i).collision1().c_str(), COLLISION_ITEM) == 0);
 		
 		if (collisionCheck)
 		{
@@ -582,7 +582,7 @@ void ArmPlugin::OnUpdate(const common::UpdateInfo& updateInfo)
 		/
 		*/
 		
-    bool checkGroundContact = gripBBox.min.z <= groundContact || gripBBox.max.z <= groundContact;
+		bool checkGroundContact = gripBBox.min.z <= groundContact || gripBBox.max.z <= groundContact;
 		
 		if(checkGroundContact)
 		{
@@ -609,11 +609,18 @@ void ArmPlugin::OnUpdate(const common::UpdateInfo& updateInfo)
 			if( episodeFrames > 1 )
 			{
 				const float distDelta  = lastGoalDistance - distGoal;
-        const float alpha = 0.0f;
+				const float alpha = 0.9f;
 
 				// compute the smoothed moving average of the delta of the distance to the goal
-        avgGoalDelta = (avgGoalDelta*alpha) + (distDelta*(1.0f - alpha));
-				rewardHistory = avgGoalDelta * REWARD_MULTIPLIER;
+				avgGoalDelta = (avgGoalDelta*alpha) + (distDelta*(1.0f - alpha));
+				if (avgGoalDelta > 0)
+					rewardHistory = avgGoalDelta * REWARD_MULTIPLIER;
+				else
+					rewardHistory = -1.0f * avgGoalDelta * REWARD_MULTIPLIER;
+				
+				if (abs(avgGoalDelta) < .001f)
+					rewardHistory += REWARD_LOSS*0.01f;
+				
 				newReward     = true;	
 			}
 
