@@ -3,22 +3,22 @@ sudo mv tmp /etc/X11/xorg.conf
 sudo awk '/DefaultDepth    24/{print;print "    Option        \"UseDisplayDevice\" \"none\"";next}1' /etc/X11/xorg.conf > tmp && \
 sudo mv tmp /etc/X11/xorg.conf
 
-
-wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
-sudo dpkg -i cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+cd
+wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64-deb
+sudo dpkg -i cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64.deb
 sudo apt-get update
-sudo apt-get install cuda
+sudo apt-get install cuda -y
 
-cat >> ~/.bashrc << 'EOF'
-export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64\
-${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-EOF
-source ~/.bashrc
+
+echo 'export PATH=/usr/local/cuda-8.0/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
 
 sudo apt-get dist-upgrade -y
 
 cd
+
+wget https://s3.amazonaws.com/blottostuff/cudnn-8.0-linux-x64-v7.1.tgz
+
 tar -xzf cudnn-8.0-linux-x64-v7.1.tgz
 cd cuda
 sudo cp lib64/* /usr/local/cuda/lib64/

@@ -48,7 +48,9 @@ echo "alias cp=\"cp -i\"" >> ~/.bash_aliases
 echo "alias mv=\"mv -i\"" >> ~/.bash_aliases
 echo "alias rm=\"rm -i\"" >> ~/.bash_aliases
 
-sudo apt-get install nvidia-384 nvidia-settings 
+
+sudo service lightdm stop
+sudo apt-get install nvidia-384 nvidia-settings -y
 
 
 echo ""
