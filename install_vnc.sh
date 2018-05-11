@@ -50,7 +50,7 @@ echo "alias rm=\"rm -i\"" >> ~/.bash_aliases
 
 
 sudo service lightdm stop
-sudo apt-get install nvidia-384 nvidia-settings -y
+#sudo apt-get install nvidia-384 nvidia-settings -y
 
 
 echo ""
