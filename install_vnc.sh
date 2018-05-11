@@ -3,10 +3,9 @@
 sudo apt-get update
 sudo apt-get upgrade -y
 
-sudo apt-get --assume-yes upgrade
-sudo apt-get --assume-yes install build-essential
+sudo apt-get install -y build-essential
 
-sudo apt install htop iotop git python-dev python3-dev python-numpy python3-numpy build-essential python-pip python3-pip python-virtualenv swig python-wheel libcurl3-dev libfreetype6-dev libpng12-dev libjpeg8-dev libtiff5-dev libjasper-dev libpng12-dev qtbase5-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran libhdf5-serial-dev
+sudo apt install -y htop iotop git python-dev python3-dev python-numpy python3-numpy build-essential python-pip python3-pip python-virtualenv swig python-wheel libcurl3-dev libfreetype6-dev libpng12-dev libjpeg8-dev libtiff5-dev libjasper-dev libpng12-dev qtbase5-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran libhdf5-serial-dev
 
 
 # Install Lubuntu
