@@ -10,6 +10,12 @@ ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 EOF
 source ~/.bashrc
 
-sudo apt-get --assume-yes dist-upgrade
+sudo apt-get dist-upgrade -y
+
+cd
+tar -xzf cudnn-8.0-linux-x64-v7.1.tgz
+cd cuda
+sudo cp lib64/* /usr/local/cuda/lib64/
+sudo cp include/* /usr/local/cuda/include/
 
 sudo reboot
