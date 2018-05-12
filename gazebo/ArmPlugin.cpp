@@ -258,7 +258,7 @@ void ArmPlugin::onCollisionMsg(ConstContactsPtr &contacts)
 		if( strcmp(contacts->contact(i).collision2().c_str(), COLLISION_FILTER) == 0 )
 			continue;
 
-		if(DEBUG){std::cout << "Collision between[" << contacts->contact(i).collision1()
+		if(true){std::cout << "Collision between[" << contacts->contact(i).collision1()
 			     << "] and [" << contacts->contact(i).collision2() << "]\n";}
 
 	
@@ -270,12 +270,23 @@ void ArmPlugin::onCollisionMsg(ConstContactsPtr &contacts)
 		
 		if (collisionCheck)
 		{
-			rewardHistory = REWARD_WIN;
+			// only gripper contact is a win
+			if (strcmp(contacts->contact(i).collision2().c_str(), COLLISION_POINT) == 0) {
+				rewardHistory = REWARD_WIN;
+				newReward  = true;
+				endEpisode = true;
 
-			newReward  = true;
-			endEpisode = true;
+				return;
+			}
 
-			return;
+
+			//else
+			//	rewardHistory = REWARD_WIN * 0.125f;
+
+			//newReward  = true;
+			//endEpisode = true;
+
+			//return;
 		}
 		//else {
 		//	// Give penalty for non correct collisions
@@ -630,8 +641,8 @@ void ArmPlugin::OnUpdate(const common::UpdateInfo& updateInfo)
 				rewardHistory = avgGoalDelta;
 
 				
-				//if (abs(avgGoalDelta) < .001f)
-				//	rewardHistory += REWARD_LOSS*0.01f;
+				if (abs(avgGoalDelta) < .001f)
+					rewardHistory += REWARD_LOSS*0.05f;
 
 				// penalize slow progress
 				//rewardHistory -= episodeFrames/
