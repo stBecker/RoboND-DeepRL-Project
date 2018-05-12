@@ -31,15 +31,15 @@
 #define EPS_DECAY 200
 
 /*
-/ TODO - Tune the following hyperparameters
+/ TODO - Tune the follAdamowing hyperparameters
 /
 */
 
-#define INPUT_WIDTH   64
-#define INPUT_HEIGHT  64
-#define OPTIMIZER "Adam"
+#define INPUT_WIDTH   128
+#define INPUT_HEIGHT  128
+#define OPTIMIZER "RMSprop"
 #define LEARNING_RATE 0.1f
-#define REPLAY_MEMORY 10000
+#define REPLAY_MEMORY 20000
 #define BATCH_SIZE 512
 #define USE_LSTM true
 #define LSTM_SIZE 256
@@ -49,9 +49,9 @@
 /
 */
 
-#define REWARD_WIN  500.0f
-#define REWARD_LOSS -500.0f
-#define REWARD_MULTIPLIER 10.0f
+#define REWARD_WIN  10.0f
+#define REWARD_LOSS -10.0f
+#define REWARD_MULTIPLIER 100.0f
 
 // Define Object Names
 #define WORLD_NAME "arm_world"
@@ -277,6 +277,13 @@ void ArmPlugin::onCollisionMsg(ConstContactsPtr &contacts)
 
 			return;
 		}
+		//else {
+		//	// Give penalty for non correct collisions
+		//	rewardHistory = 0.1f * REWARD_LOSS;
+		//	// rewardHistory = REWARD_LOSS;
+		//	newReward  = true;
+		//	endEpisode = true;
+//}
 
 		
 	}
@@ -325,8 +332,9 @@ bool ArmPlugin::updateAgent()
 	/ TODO - Increase or decrease the joint velocity based on whether the action is even or odd
 	/
 	*/
-	
-	float velocity = vel[action / 2] + actionVelDelta * ((action % 2 == 0) ? 1.0f : -1.0f); // TODO - Set joint velocity based on whether action is even or odd.
+	const int velIdx = action / 2;
+	float direction = (action % 2 == 0) ? 1.0f : -1.0f;
+	float velocity = vel[velIdx] + actionVelDelta * direction; // TODO - Set joint velocity based on whether action is even or odd.
 
 	if( velocity < VELOCITY_MIN )
 		velocity = VELOCITY_MIN;
@@ -357,8 +365,9 @@ bool ArmPlugin::updateAgent()
 	/ TODO - Increase or decrease the joint position based on whether the action is even or odd
 	/
 	*/
-  const int jointIdx = action / 2;
-	float joint = ref[jointIdx] + actionJointDelta * ((action % 2 == 0) ? 1.0f : -1.0f); // TODO - Set joint position based on whether action is even or odd.
+  	const int jointIdx = action / 2;
+	float direction = (action % 2 == 0) ? 1.0f : -1.0f;
+	float joint = ref[jointIdx] + actionJointDelta * direction; // TODO - Set joint position based on whether action is even or odd.
 
 	// limit the joint to the specified range
 	if( joint < JOINT_MIN )
@@ -609,17 +618,23 @@ void ArmPlugin::OnUpdate(const common::UpdateInfo& updateInfo)
 			if( episodeFrames > 1 )
 			{
 				const float distDelta  = lastGoalDistance - distGoal;
-				const float alpha = 0.9f;
+				const float alpha = 0.1f;
 
 				// compute the smoothed moving average of the delta of the distance to the goal
 				avgGoalDelta = (avgGoalDelta*alpha) + (distDelta*(1.0f - alpha));
-				if (avgGoalDelta > 0)
-					rewardHistory = avgGoalDelta * REWARD_MULTIPLIER;
-				else
-					rewardHistory = -1.0f * avgGoalDelta * REWARD_MULTIPLIER;
+
+				if(DEBUG)
+					printf("distDelta: %f, avgGoalDelta: %f\n",distDelta,avgGoalDelta);
+
+
+				rewardHistory = avgGoalDelta;
+
 				
-				if (abs(avgGoalDelta) < .001f)
-					rewardHistory += REWARD_LOSS*0.01f;
+				//if (abs(avgGoalDelta) < .001f)
+				//	rewardHistory += REWARD_LOSS*0.01f;
+
+				// penalize slow progress
+				//rewardHistory -= episodeFrames/
 				
 				newReward     = true;	
 			}
@@ -662,4 +677,3 @@ void ArmPlugin::OnUpdate(const common::UpdateInfo& updateInfo)
 }
 
 }
-
